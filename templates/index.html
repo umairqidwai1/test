@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athan Player</title>
+    
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{ url_for('static', filename='apple-touch-icon-57x57.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ url_for('static', filename='apple-touch-icon-114x114.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ url_for('static', filename='apple-touch-icon-72x72.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ url_for('static', filename='apple-touch-icon-144x144.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="{{ url_for('static', filename='apple-touch-icon-60x60.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="{{ url_for('static', filename='apple-touch-icon-120x120.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="{{ url_for('static', filename='apple-touch-icon-76x76.png') }}">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="{{ url_for('static', filename='apple-touch-icon-152x152.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-196x196.png') }}" sizes="196x196">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-96x96.png') }}" sizes="96x96">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-32x32.png') }}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-16x16.png') }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-128.png') }}" sizes="128x128">
+    
+    <meta name="application-name" content="&nbsp;"/>
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='mstile-144x144.png') }}" />
+    <meta name="msapplication-square70x70logo" content="{{ url_for('static', filename='mstile-70x70.png') }}" />
+    <meta name="msapplication-square150x150logo" content="{{ url_for('static', filename='mstile-150x150.png') }}" />
+    <meta name="msapplication-wide310x150logo" content="{{ url_for('static', filename='mstile-310x150.png') }}" />
+    <meta name="msapplication-square310x310logo" content="{{ url_for('static', filename='mstile-310x310.png') }}" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .prayer-times,
+        .select-athan,
+        .audio-settings,
+        .system-controls,
+        .upload-athan {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .prayer-times h2,
+        .select-athan h2,
+        .audio-settings h2,
+        .system-controls h2,
+        .upload-athan h2 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+        }
+
+        .prayer-times ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-group-item {
+            background-color: transparent;
+            border: none;
+            padding: 5px 0;
+            text-align: center;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        label,
+        select,
+        input {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .volume-control input[type="number"] {
+            max-width: 80px;
+            margin-left: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .form-row label {
+            text-align: center;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .form-row select {
+            flex: 5;
+            margin-right: 10px;
+            margin-left: 10px;
+        }
+
+        .form-row button {
+            flex: 1;
+            font-size: 0.8rem;
+            padding: 8px;
+            min-width: 68px;
+        }
+        
+        .remove-btn {
+            font-size: 0.8rem;
+            min-width: 68px;
+        }
+
+        .add-btn {
+            font-size: 0.8rem;
+            min-width: 68px;
+        }
+
+        .modal-footer {
+        display: flex;
+        justify-content: center; /* Center buttons in the footer */
+        flex: 1;
+        }
+    
+        .modal-btn {
+            min-width: 150px; /* Ensures buttons are the same width */
+            flex: 1; /* Allows buttons to grow and shrink equally */
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Prayer Times Section -->
+        <div class="prayer-times">
+            <h2>Prayer Times</h2>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Fajr:</strong> {{ prayer_times['fajr_12hr'] }}</li>
+                <li class="list-group-item"><strong>Shuruq:</strong> {{ prayer_times['sunset_12hr'] }}</li>
+                <li class="list-group-item"><strong>Dhuhr:</strong> {{ prayer_times['dohr_12hr'] }}</li>
+                <li class="list-group-item"><strong>Asr:</strong> {{ prayer_times['asr_12hr'] }}</li>
+                <li class="list-group-item"><strong>Maghrib:</strong> {{ prayer_times['maghreb_12hr'] }}</li>
+                <li class="list-group-item"><strong>Isha:</strong> {{ prayer_times['icha_12hr'] }}</li>
+            </ul>
+        </div>
+
+        <!-- Audio Settings Section -->
+        <div class="audio-settings">
+            <h2>Audio Settings</h2>
+            <form method="POST">
+                <div class="volume-control">
+                    <label for="volume_slider" class="form-label">Volume:</label>
+                    <input type="range" name="volume_slider" class="form-range" id="volume_slider" min="1" max="100" value="{{ volume }}">
+                    <input type="number" name="volume_box" class="form-control" id="volume_box" min="1" max="100" value="{{ volume }}">
+                </div>
+                <!-- Volume form is now handled automatically by JavaScript -->
+            </form>
+        </div>
+
+        <!-- Select Athan Audio Section -->
+        <div class="select-athan">
+            <h2>Select Athan Audio</h2>
+            <form method="POST">
+                <div class="form-row">
+                    <label for="fajr_audio" class="form-label">Fajr Athan:</label>
+                </div>
+                <div class="form-row">
+                    <button type="button" class="btn btn-danger remove-btn" data-bs-toggle="modal" data-bs-target="#confirmRemoveModal" data-audio-type="fajr">Remove</button>
+                    <select name="fajr_audio" class="form-select">
+                        {% for file in fajr_athan_files %}
+                        <option value="{{ file }}" {% if selected_fajr_athan == file %}selected{% endif %}>{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-secondary add-btn" data-bs-toggle="modal" data-bs-target="#uploadFajrModal">Add</button>
+                </div>
+        
+                <div class="form-row">
+                    <label for="regular_audio" class="form-label">Regular Athan:</label>
+                </div>
+                <div class="form-row">
+                    <button type="button" class="btn btn-danger remove-btn" data-bs-toggle="modal" data-bs-target="#confirmRemoveModal" data-audio-type="regular">Remove</button>
+                    <select name="regular_audio" class="form-select">
+                        {% for file in regular_athan_files %}
+                        <option value="{{ file }}" {% if selected_regular_athan == file %}selected{% endif %}>{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-secondary add-btn" data-bs-toggle="modal" data-bs-target="#uploadRegularModal">Add</button>
+                </div>
+        
+                <button type="submit" name="save_changes" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+
+        <!-- Upload Fajr Athan Modal -->
+        <div class="modal fade" id="uploadFajrModal" tabindex="-1" aria-labelledby="uploadFajrModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadFajrModalLabel">Upload Fajr Athan Audio</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="fajrUploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('upload_fajr_athan') }}">
+                            <div class="mb-3">
+                                <label for="fajr_file" class="form-label">Select Fajr Athan File</label>
+                                <input type="file" class="form-control" id="fajr_file" name="file" accept="audio/*">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fajr_url" class="form-label">Or Enter YouTube URL</label>
+                                <input type="text" class="form-control" id="fajr_url" name="youtube_url" placeholder="https://youtube.com/your-url">
+                            </div>
+                            <button type="button" class="btn btn-primary" id="downloadFajrBtn">Upload Fajr Athan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Regular Athan Modal -->
+        <div class="modal fade" id="uploadRegularModal" tabindex="-1" aria-labelledby="uploadRegularModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadRegularModalLabel">Upload Regular Athan Audio</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="regularUploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('upload_regular_athan') }}">
+                            <div class="mb-3">
+                                <label for="regular_file" class="form-label">Select Regular Athan File</label>
+                                <input type="file" class="form-control" id="regular_file" name="file" accept="audio/*">
+                            </div>
+                            <div class="mb-3">
+                                <label for="regular_url" class="form-label">Or Enter YouTube URL</label>
+                                <input type="text" class="form-control" id="regular_url" name="youtube_url" placeholder="https://youtube.com/your-url">
+                            </div>
+                            <button type="button" class="btn btn-primary" id="downloadRegularBtn">Upload Regular Athan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- System Controls Section -->
+    <div class="system-controls">
+        <h2>System Controls</h2>
+        <button type="button" class="btn btn-secondary" id="testFajrBtn">Test Fajr Athan</button>
+        <button type="button" class="btn btn-secondary" id="testRegularBtn">Test Regular Athan</button>
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmStopModal">Stop Athan</button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmRebootModal">Reboot Raspberry Pi</button>
+    </div>
+
+    
+
+<!-- Confirm Stop Athan Modal -->
+<div class="modal fade" id="confirmStopModal" tabindex="-1" aria-labelledby="confirmStopModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmStopModalLabel">Confirm Stop Athan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to stop the Athan?
+            </div>
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-secondary modal-btn" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="stop_athan" class="btn btn-warning modal-btn">Stop Athan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Reboot Modal -->
+<div class="modal fade" id="confirmRebootModal" tabindex="-1" aria-labelledby="confirmRebootModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmRebootModalLabel">Confirm Reboot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to reboot the Raspberry Pi?
+            </div>
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-secondary modal-btn" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="reboot" class="btn btn-danger modal-btn">Reboot</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Url Upload Modal -->
+<div class="modal fade" id="confirmUrlUpload" tabindex="-1" aria-labelledby="confirmUrlUploadLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmUrlUploadLabel">Converting and Uploading Athan...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div style="height: 50px;"></div>
+                Reload the page after about 5 minutes to see uploaded Athans.
+                You can safely close the application now.
+                <div style="height: 50px;"></div>
+            </div>
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-secondary modal-btn" data-bs-dismiss="modal">OK</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Remove Modal -->
+<div class="modal fade" id="confirmRemoveModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmRemoveModalLabel">Remove Selected Athan?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove the selected Athan? This action cannot be undone.
+            </div>
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-secondary modal-btn" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="/remove_athan" style="display: inline;">
+                    <input type="hidden" id="athan_to_remove" name="athan_to_remove" value="">
+                    <input type="hidden" id="audio_type" name="audio_type" value="">
+                    <button type="submit" class="btn btn-danger modal-btn">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- JavaScript -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        
+        // Sync slider and input box
+        const slider = document.getElementById('volume_slider');
+        const box = document.getElementById('volume_box');
+        // WebSocket setup to receive live updates
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function updateVolume() {
+            const volume = slider.value;
+            fetch('/update_volume', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ volume: volume }),
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Volume updated:', data);
+              })
+              .catch(error => {
+                  console.error('Error updating volume:', error);
+              });
+        }
+        slider.addEventListener('input', function() {
+            box.value = slider.value;
+            updateVolume(); // Update volume automatically
+        });
+
+        box.addEventListener('input', function() {
+            slider.value = box.value;
+            updateVolume(); // Update volume automatically
+        });
+
+        // Handle incoming volume updates from the server (via WebSocket)
+        socket.on('volume_update', function(data) {
+            slider.value = data.volume;
+            box.value = data.volume;
+        });
+
+        // Fajr Athan Upload Button Click
+        document.getElementById('downloadFajrBtn').addEventListener('click', function() {
+            const form = document.getElementById('fajrUploadForm');
+            const youtubeUrl = form.querySelector('#fajr_url').value.trim();
+            const fileInput = form.querySelector('#fajr_file').files[0];
+        
+            if (youtubeUrl) {
+                // Dismiss the upload modal (if it's open)
+                const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadFajrModal'));
+                if (uploadModal) {
+                    uploadModal.hide(); // Dismiss the first modal
+                }
+        
+                // Show the confirmation modal
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmUrlUpload'));
+                confirmModal.show();
+        
+                // Submit form with YouTube URL via fetch (runs in background)
+                fetch('{{ url_for("download_fajr_from_youtube") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'youtube_url': youtubeUrl
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Error: Could not download Fajr Athan.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        
+                // Handle the "OK" button to redirect, but don't dismiss the confirmation modal
+                document.querySelector('#confirmUrlUpload .modal-btn').addEventListener('click', function() {
+                    window.location.href = "{{ url_for('index') }}"; // Redirect to the main page
+                });
+        
+            } else if (fileInput) {
+                // If file is selected, submit the form normally
+                form.submit();
+            } else {
+                alert('Please provide either a YouTube URL or an audio file.');
+            }
+        });
+        
+        // Regular Athan Upload Button Click
+        document.getElementById('downloadRegularBtn').addEventListener('click', function() {
+            const form = document.getElementById('regularUploadForm');
+            const youtubeUrl = form.querySelector('#regular_url').value.trim();
+            const fileInput = form.querySelector('#regular_file').files[0];
+        
+            if (youtubeUrl) {
+                // Dismiss the upload modal (if it's open)
+                const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadRegularModal'));
+                if (uploadModal) {
+                    uploadModal.hide(); // Dismiss the first modal
+                }
+        
+                // Show the confirmation modal
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmUrlUpload'));
+                confirmModal.show();
+        
+                // Submit form with YouTube URL via fetch (runs in background)
+                fetch('{{ url_for("download_regular_from_youtube") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'youtube_url': youtubeUrl
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Error: Could not download Regular Athan.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        
+                // Handle the "OK" button to redirect, but don't dismiss the confirmation modal
+                document.querySelector('#confirmUrlUpload .modal-btn').addEventListener('click', function() {
+                    window.location.href = "{{ url_for('index') }}"; // Redirect to the main page
+                });
+        
+            } else if (fileInput) {
+                // If file is selected, submit the form normally
+                form.submit();
+            } else {
+                alert('Please provide either a YouTube URL or an audio file.');
+            }
+        });
+
+        // Script to handle the removal confirmation
+        document.querySelectorAll('.remove-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const selectElement = button.nextElementSibling; // The select element after the button
+                const selectedValue = selectElement.value;
+                document.getElementById('athan_to_remove').value = selectedValue;
+                document.getElementById('audio_type').value = button.dataset.audioType; // Set audio type
+            });
+        });
+        
+        // test fajr athan button
+        document.getElementById('testFajrBtn').addEventListener('click', function() {
+            fetch('/test_fajr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Fajr Athan played successfully');
+                } else {
+                    alert('Error playing Fajr Athan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    
+        // test regular athan button
+        document.getElementById('testRegularBtn').addEventListener('click', function() {
+            fetch('/test_regular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Regular Athan played successfully');
+                } else {
+                    alert('Error playing Regular Athan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
