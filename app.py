@@ -15,6 +15,12 @@ app = Flask(__name__)
 socketio = SocketIO(app) 
 mixer.init()
 
+# Global variables to store prayer times
+FAJR = ''
+DHUHR = ''
+ASR = ''
+MAGHRIB = ''
+ISHA = ''
 
 # Initialize prayer_time_cache and last_fetched as global variables
 prayer_time_cache = None
@@ -100,41 +106,39 @@ def stop_athan():
     mixer.music.stop()
 
 def get_prayer_times():
-    global prayer_times_cache, last_fetched
+    global prayer_times_cache
 
-    # Get the current time
-    now = datetime.now()
+    try:
+        # Fetch prayer times from the API
+        response = requests.get(LinkAPI)
+        if response.status_code == 200:
+            prayer_times = response.json()
 
-    # If last_fetched is None (first run) or it’s a new day, or if it’s exactly 2 AM, fetch new prayer times
-    if last_fetched is None or (now.date() != last_fetched.date()) or (now.hour == 2 and now.minute == 0):
-        try:
-            response = requests.get(LinkAPI)
-            if response.status_code == 200:
-                prayer_times = response.json()
+            # Update the cache with the fetched prayer times
+            prayer_times_cache = {
+                'fajr_12hr': format_time(prayer_times.get('fajr', '')),
+                'sunset_12hr': format_time(prayer_times.get('sunset', '')),
+                'dohr_12hr': format_time(prayer_times.get('dohr', '')),
+                'asr_12hr': format_time(prayer_times.get('asr', '')),
+                'maghreb_12hr': format_time(prayer_times.get('maghreb', '')),
+                'icha_12hr': format_time(prayer_times.get('icha', '')),
+                'fajr': prayer_times.get('fajr', ''),
+                'dohr': prayer_times.get('dohr', ''),
+                'asr': prayer_times.get('asr', ''),
+                'maghreb': prayer_times.get('maghreb', ''),
+                'icha': prayer_times.get('icha', ''),
+            }
 
-                # Update the cache and last fetched time
-                prayer_times_cache = {
-                    'fajr_12hr': format_time(prayer_times.get('fajr', '')),
-                    'sunset_12hr': format_time(prayer_times.get('sunset', '')),
-                    'dohr_12hr': format_time(prayer_times.get('dohr', '')),
-                    'asr_12hr': format_time(prayer_times.get('asr', '')),
-                    'maghreb_12hr': format_time(prayer_times.get('maghreb', '')),
-                    'icha_12hr': format_time(prayer_times.get('icha', '')),
-                    'fajr': prayer_times.get('fajr', ''),
-                    'dohr': prayer_times.get('dohr', ''),
-                    'asr': prayer_times.get('asr', ''),
-                    'maghreb': prayer_times.get('maghreb', ''),
-                    'icha': prayer_times.get('icha', ''),
-                }
-                last_fetched = now
-            else:
-                raise Exception(f"Failed to retrieve prayer times. Status code: {response.status_code}")
-        except Exception as e:
-            print(f"Error retrieving prayer times: {e}")
-            return None  # Or return an empty dict if preferred
+        else:
+            raise Exception(f"Failed to retrieve prayer times. Status code: {response.status_code}")
 
-    # Return the cached prayer times
+    except Exception as e:
+        print(f"Error retrieving prayer times: {e}")
+        return None  # Or return an empty dict if preferred
+
+    # Return the fetched prayer times
     return prayer_times_cache
+
 
 def format_time(time_str):
     """Convert 24-hour time format to 12-hour time format with AM/PM."""
@@ -169,20 +173,27 @@ def handle_volume_buttons():
                     print(f"Volume decreased to {current_volume}")  # Debugging log
                     socketio.emit('volume_update', {'volume': current_volume})
                   
-  
-# Load prayer times initially when the program starts
-prayer_times = get_prayer_times()
-
-# Extract individual prayer times (24-hour format)
-FAJR = prayer_times.get('fajr', '')
-DHUHR = prayer_times.get('dohr', '')
-ASR = prayer_times.get('asr', '')
-MAGHRIB = prayer_times.get('maghreb', '')
-ISHA = prayer_times.get('icha', '')
 
 def main_loop():
+    # Load prayer times initially when the program starts
+    prayer_times = get_prayer_times()
 
-  
+    # Check if prayer times were fetched successfully
+    if not prayer_times:
+        print("Failed to load prayer times. Exiting...")
+        return  # Exit if prayer times cannot be fetched
+
+    # Extract individual prayer times (24-hour format) once
+    FAJR = prayer_times.get('fajr', '')
+    DHUHR = prayer_times.get('dohr', '')
+    ASR = prayer_times.get('asr', '')
+    MAGHRIB = prayer_times.get('maghreb', '')
+    ISHA = prayer_times.get('icha', '')
+
+    while True:
+        # Get the current time in 24-hour format (HH:MM)
+        current_time = datetime.now().strftime('%H:%M')
+
         # Check if the current time matches any prayer time
         if current_time == FAJR:
             play_fajr_athan()
@@ -195,7 +206,8 @@ def main_loop():
         elif current_time == ISHA:
             play_regular_athan()
 
-        time.sleep(1)  # Sleep for a second before checking again
+        # Sleep for a second before checking again
+        time.sleep(1)  
 
 # Start the main loop in a separate thread
 def start_background_thread():
