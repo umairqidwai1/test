@@ -236,7 +236,6 @@ def download_athan_from_youtube(url, save_path):
         if file.endswith('.webm.ytdl'):
             os.remove(os.path.join(save_path, file))
 
-@socketio.on('connect')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
